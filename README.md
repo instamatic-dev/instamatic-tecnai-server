@@ -24,3 +24,7 @@ The "Tecnai-Server"-software is provided as a standard python-program. You can d
 The software will be configured by the .yaml-files in the `utils`-subdirectory. For instance the correct network address of your microscope-PC is set in the `settings.yaml` file. The magnification table of your TEM or the scripting interface `tecnai` are saved in the `microscope.yaml` file.
 
 In our experimental setup the [instamatic software](https://github.com/instamatic-dev/instamatic) is installed on a separate PC (camera PC). In this case the configuration files of Instamatic must be adapted like in the server software. Especially the `interface="tecnai"`, the microscope, the network address and the flag `use_tem_server"` should be verified. Afterwards the instamatic software should be starting without errors on your PC. You can try it out in an IPython shell if the TEMController-object has access to TEM.
+
+## Credits
+
+Thanks to Steffen Schmidt ([CUP, LMU München](https://www.cup.uni-muenchen.de/) for providing this script.
