@@ -27,4 +27,4 @@ In our experimental setup the [instamatic software](https://github.com/instamati
 
 ## Credits
 
-Thanks to Steffen Schmidt ([CUP, LMU München](https://www.cup.uni-muenchen.de/) for providing this script.
+Thanks to Steffen Schmidt ([CUP, LMU München](https://www.cup.uni-muenchen.de/)) for providing this script.
