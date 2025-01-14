@@ -76,6 +76,7 @@ class TecnaiMicroscope(metaclass=Singleton):
         self._tecnaiStage = TecnaiStageThread() #Thread für a-Movement
         self._goniotool_available = False
 
+
     ###Stage-Functions
     def getHolderType(self) -> int:
         """Return TEM-Holder type as enum constant."""
@@ -419,7 +420,7 @@ class TecnaiMicroscope(metaclass=Singleton):
     def setScreenPosition(self, value: str) -> None:
         """set Screen 'up' or 'down'."""
         if value not in ('up', 'down'):
-            raise FEIValueError("No such screen position: %s ." % value)
+            raise FEIValueError("No such screen position: %s ." % (value))
         if value == 'up':
             self._tem.Camera.MainScreen = self._tem_constant.ScreenPosition['spUp']
         else:
@@ -520,7 +521,7 @@ class TecnaiMicroscope(metaclass=Singleton):
                     magni.extend(self._mic_ranges[k])
                 ind = magni.index(value)
         except ValueError:
-            raise FEIValueError('wrong Magnification: %s' % value)
+            raise FEIValueError('wrong Magnification: %s' % (value))
 
         if ind:
             self.setMagnificationIndex(ind + 1)
