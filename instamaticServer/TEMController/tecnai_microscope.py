@@ -23,7 +23,7 @@ _FUNCTION_MODES = {1: 'lowmag', 2: 'mag1', 3: 'samag', 4: 'mag2', 5: 'LAD', 6: '
 
 
 class Singleton(type):
-    '''Singleton Metaclass from discussion on Stack-Overflow'''
+    """Singleton Metaclass from Stack Overflow, stackoverflow.com/q/6760685"""
     _instances = {}
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -34,7 +34,7 @@ class Singleton(type):
 class TecnaiMicroscope(metaclass=Singleton):
     """Python bindings to the Tecnai-G2 microscope using the COM scripting interface."""
 
-    def __init__(self, name:str=None):
+    def __init__(self, name: str=None) -> None:
 
         try:
             comtypes.CoInitialize()
@@ -102,10 +102,7 @@ class TecnaiMicroscope(metaclass=Singleton):
 
     def isAThreadAlive(self) -> bool:
         """Return goniotool status, always False."""
-        if self._tecnaiStage.is_alive():
-            return True
-        else:
-            return False
+        return self._tecnaiStage.is_alive()
 
     def isStageMoving(self) -> bool:
         """is Stage moving?, False if the Stage is ready, else it is True."""
@@ -127,7 +124,8 @@ class TecnaiMicroscope(metaclass=Singleton):
                     
         return False
            
-    def setStagePosition(self, x: float=None, y: float=None, z: float=None, a: float=None, b: float=None, wait: bool=True, speed: float=1.0) -> None:
+    def setStagePosition(self, x: float=None, y: float=None, z: float=None, a: float=None,
+                         b: float=None, wait: bool=True, speed: float=1.0) -> None:
         """Set the Stageposition x, y, z in microns and alpha(a), beta(b) in degs."""
         pos = self._tem.Stage.Position
         axis = 0
@@ -136,7 +134,8 @@ class TecnaiMicroscope(metaclass=Singleton):
         if (speed > 1.0) or (speed <= 0.0):
             speed = 1.0
 
-        if self._tem.Stage.Holder in ( self._tem_constant.StageHolderType['hoSingleTilt'], self._tem_constant.StageHolderType['hoDoubleTilt'] ):
+        if self._tem.Stage.Holder in (self._tem_constant.StageHolderType['hoSingleTilt'],
+                                      self._tem_constant.StageHolderType['hoDoubleTilt']):
             enable_stage = True
 
         if self._tem.Stage.Holder == self._tem_constant.StageHolderType['hoDoubleTilt']:
@@ -158,7 +157,7 @@ class TecnaiMicroscope(metaclass=Singleton):
             pos.B = b / 180 * pi
             axis = axis | self._tem_constant.StageAxes['axisB']
         
-        if wait == True:
+        if wait:
             if axis != 0:
                 if speed == 1.0:
                     if (axis == self._tem_constant.StageAxes['axisA']) and (self._rotation_speed != 1.0):
@@ -169,7 +168,7 @@ class TecnaiMicroscope(metaclass=Singleton):
                     self._tem.Stage.GoToWithSpeed(pos, axis, speed)
             self.waitForStage()
         elif (wait == False) and (self._tecnaiStage.is_alive() is False):
-            if (axis == self._tem_constant.StageAxes['axisA']):
+            if axis == self._tem_constant.StageAxes['axisA']:
                 #start Rotation in separate Thread and go on
                 stagePos = (pos.X, pos.Y, pos.Z, pos.A, pos.B)
                 self._tecnaiStage = TecnaiStageThread(self._tem, stagePos, axis, speed)
@@ -265,7 +264,8 @@ class TecnaiMicroscope(metaclass=Singleton):
         axis = 0
         enable_stage = False
 
-        if self._tem.Stage.Holder in ( self._tem_constant.StageHolderType['hoSingleTilt'], self._tem_constant.StageHolderType['hoDoubleTilt'] ):
+        if self._tem.Stage.Holder in (self._tem_constant.StageHolderType['hoSingleTilt'],
+                                      self._tem_constant.StageHolderType['hoDoubleTilt']):
             enable_stage = True
 
         if value is not None:
@@ -478,7 +478,7 @@ class TecnaiMicroscope(metaclass=Singleton):
 
     def getScreenCurrent(self) -> float:
         """get the Screen current in nA."""
-        return (self._tem.Camera.ScreenCurrent * 1e9)
+        return self._tem.Camera.ScreenCurrent * 1e9
 
     def isfocusscreenin(self) -> bool:
         """is small Screen down?"""
@@ -499,7 +499,7 @@ class TecnaiMicroscope(metaclass=Singleton):
     def setScreenPosition(self, value: str) -> None:
         """set Screen 'up' or 'down'."""
         if value not in ('up', 'down'):
-            raise FEIValueError("No such screen position: %s ." % (value))
+            raise FEIValueError("No such screen position: %s ." % value)
         if value == 'up':
             self._tem.Camera.MainScreen = self._tem_constant.ScreenPosition['spUp']
         else:
@@ -600,7 +600,7 @@ class TecnaiMicroscope(metaclass=Singleton):
                     magni.extend(self._mic_ranges[k])
                 ind = magni.index(value)
         except ValueError:
-            raise FEIValueError('wrong Magnification: %s' % (value))
+            raise FEIValueError('wrong Magnification: %s' % value)
 
         if ind:
             self.setMagnificationIndex(ind + 1)
@@ -704,7 +704,8 @@ class TecnaiMicroscope(metaclass=Singleton):
 
     def getDiffShift(self) -> (float, float):
         """get the diffraction shift value in degree."""
-        return float(180 / pi * self._tem.Projection.DiffractionShift.X), float(180 / pi * self._tem.Projection.DiffractionShift.Y)
+        return (float(180 / pi * self._tem.Projection.DiffractionShift.X),
+                float(180 / pi * self._tem.Projection.DiffractionShift.Y))
 
     def setDiffShift(self, x: float, y: float) -> None:
         """set the diffraction shift values in degree."""
