@@ -4,13 +4,13 @@ The "Tecnai-Server" is an additional TEM interface used to control a FEI Tecnai-
 
 ## Installation and Requirement
 
-The server software was developed in a Python 3.4 software environment (Windows XP). Following you have to install the Python 3.4 software package on your microscope-PC. The additional needed software-side packages are:
+The server software was developed in a Python 3.4 software environment (Windows XP). Following you have to install the Python 3.4 software package on your microscope-PC. The additional needed software-side packages and their last versions confirmed to work on Windows XP are:
 
-- `comtypes`
-- `PyYAML`
-- `typing`
+- `comtypes` – version 1.2.1 ([link](https://pypi.org/project/comtypes/1.2.1/#comtypes-1.2.1-py2.py3-none-any.whl));
+- `PyYAML` – version 5.1.2 ([link](https://pypi.org/project/PyYAML/5.1.2/#PyYAML-5.1.2-cp34-cp34m-win32.whl), might require updating pip)
+- `typing` – version 3.10.0.0 ([link](https://pypi.org/project/typing/3.10.0.0/#typing-3.10.0.0-py3-none-any.whl))
 
-Those packages can by either local installed or by the standard pip-mechanism of the python packaging system. Furthermore the FEI com-scripting interface should be available on your TEM-PC.
+The packages can be installed using pip, either automatically (if connected to the internet) or manually, by downloading, copying, and pointing to the wheel files linked above. Furthermore, the FEI com-scripting interface should be available on your TEM-PC.
 
 ## Usage
 
