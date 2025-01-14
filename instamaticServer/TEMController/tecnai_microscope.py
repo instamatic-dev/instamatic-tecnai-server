@@ -75,8 +75,6 @@ class TecnaiMicroscope(metaclass=Singleton):
         self._rotation_speed = 1.0
         self._tecnaiStage = TecnaiStageThread() #Thread für a-Movement
         self._goniotool_available = False
-        self._known_holder_types = [self._tem_constant.StageHolderType['hoSingleTilt'],
-                                    self._tem_constant.StageHolderType['hoDoubleTilt']]
 
     ###Stage-Functions
     def getHolderType(self) -> int:
@@ -135,7 +133,8 @@ class TecnaiMicroscope(metaclass=Singleton):
         if (speed > 1.0) or (speed <= 0.0):
             speed = 1.0
 
-        if self._tem.Stage.Holder in self._known_holder_types:
+        if self._tem.Stage.Holder in (self._tem_constant.StageHolderType['hoSingleTilt'],
+                                      self._tem_constant.StageHolderType['hoDoubleTilt']):
             enable_stage = True
 
         if self._tem.Stage.Holder == self._tem_constant.StageHolderType['hoDoubleTilt']:
@@ -185,7 +184,8 @@ class TecnaiMicroscope(metaclass=Singleton):
         axis = 0
         enable_stage = False
 
-        if self._tem.Stage.Holder in self._known_holder_types:
+        if self._tem.Stage.Holder in (self._tem_constant.StageHolderType['hoSingleTilt'],
+                                      self._tem_constant.StageHolderType['hoDoubleTilt']):
             enable_stage = True
 
         if value is not None:
