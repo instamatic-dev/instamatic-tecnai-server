@@ -6,14 +6,14 @@ import signal
 import traceback
 import logging
 
-from TEMController.microscope import Microscope
+from TEMController.microscope import get_microscope
 from serializer import dumper, loader
 from utils.config import config
 
 condition = threading.Condition()
 stop_program_event = threading.Event()
 
-box = []
+box = []\
 
 _conf = config()
 HOST = _conf.default_settings['tem_server_host']
@@ -44,7 +44,7 @@ class TemServer(threading.Thread):
 
     def run(self):
         """Start the server thread."""
-        self.tem = Microscope(name=self._name)
+        self.tem = get_microscope(name=self._name)
         self._name = self.tem.name
         print("Initialized connection to microscope: %s" % (self._name))
 

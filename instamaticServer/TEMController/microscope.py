@@ -3,10 +3,10 @@ from utils.config import config
 _conf = config()
 _tem_interfaces = ('simulate', 'tecnai')
 
-__all__ = ['Microscope', 'get_tem']
+__all__ = ['get_microscope', 'get_microscope_class']
 
 
-def get_tem(interface: str):
+def get_microscope_class(interface: str):
     """Grab the tem class with the given 'interface'."""
 
     if interface == 'simulate':
@@ -19,7 +19,7 @@ def get_tem(interface: str):
     return cls
 
 
-def Microscope(name: str = None):
+def get_microscope(name: str = None):
     """Generic class to load microscope interface class.
 
     name: str
@@ -35,7 +35,7 @@ def Microscope(name: str = None):
         interface = _conf.micr_interface
         name = _conf.default_settings['microscope']
 
-    cls = get_tem(interface=interface)
+    cls = get_microscope_class(interface=interface)
     tem = cls(name=name)
 
     return tem
