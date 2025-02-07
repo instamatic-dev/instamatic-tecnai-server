@@ -3,10 +3,13 @@ import logging
 import time
 import comtypes.client
 from math import pi
+from typing import Optional
 
+from .typing import StagePositionTuple, float_deg, int_nm
 from utils.exceptions import FEIValueError, TEMCommunicationError
 from utils.config import config
 from TEMController.tecnai_stage_thread import TecnaiStageThread
+
 
 _FUNCTION_MODES = {1: 'lowmag', 2: 'mag1', 3: 'samag', 4: 'mag2', 5: 'LAD', 6: 'diff'}
 
@@ -124,9 +127,17 @@ class TecnaiMicroscope(metaclass=Singleton):
                     
         return False
            
-    def setStagePosition(self, x: float=None, y: float=None, z: float=None, a: float=None,
-                         b: float=None, wait: bool=True, speed: float=1.0) -> None:
-        """Set the Stageposition x, y, z in microns and alpha(a), beta(b) in degs."""
+    def setStagePosition(
+            self,
+            x: Optional[int_nm] = None,
+            y: Optional[int_nm] = None,
+            z: Optional[int_nm] = None,
+            a: Optional[float_deg] = None,
+            b: Optional[float_deg] = None,
+            wait: bool = True,
+            speed: float = 1.0,
+    ) -> None:
+        """Set `Stageposition`'s x, y, z in m (from nm), alpha, beta in deg."""
         pos = self._tem.Stage.Position
         axis = 0
         enable_stage = False

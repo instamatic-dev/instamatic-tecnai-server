@@ -1,9 +1,11 @@
 import random
 import time
-from typing import Tuple
+from typing import Optional, Tuple, Union
 
+from .typing import StagePositionTuple, float_deg, int_nm
 from utils.exceptions import TEMValueError
 from utils.config import config
+
 
 NTRLMAPPING = {
     'GUN1': 0,
@@ -167,7 +169,7 @@ class SimuMicroscope:
         for key in ('a', 'b', 'x', 'y', 'z'):
             self._stage_dict[key]['speed'] = 2**32
 
-    def _StagePositionSetter(self, var: str, val: float) -> None:
+    def _StagePositionSetter(self, var: str, val: Union[int_nm, float_deg]) -> None:
         """General stage position setter, models stage movement speed."""
         d = self._stage_dict[var]
         current = d['current']
@@ -179,7 +181,7 @@ class SimuMicroscope:
         d['t0'] = time.perf_counter()
         d['direction'] = direction
 
-    def _StagePositionGetter(self, var: str) -> float:
+    def _StagePositionGetter(self, var: str) -> Union[int_nm, float_deg]:
         """General stage position getter, models stage movement speed."""
         d = self._stage_dict[var]
         is_moving = d['is_moving']
@@ -203,43 +205,43 @@ class SimuMicroscope:
         return ret
 
     @property
-    def StagePosition_a(self):
+    def StagePosition_a(self) -> float_deg:
         return self._StagePositionGetter('a')
 
     @StagePosition_a.setter
-    def StagePosition_a(self, value):
+    def StagePosition_a(self, value: float_deg) -> None:
         self._StagePositionSetter('a', value)
 
     @property
-    def StagePosition_b(self):
+    def StagePosition_b(self) -> float_deg:
         return self._StagePositionGetter('b')
 
     @StagePosition_b.setter
-    def StagePosition_b(self, value):
+    def StagePosition_b(self, value: float_deg) -> None:
         self._StagePositionSetter('b', value)
 
     @property
-    def StagePosition_x(self):
+    def StagePosition_x(self) -> int_nm:
         return self._StagePositionGetter('x')
 
     @StagePosition_x.setter
-    def StagePosition_x(self, value):
+    def StagePosition_x(self, value: int_nm) -> None:
         self._StagePositionSetter('x', value)
 
     @property
-    def StagePosition_y(self):
+    def StagePosition_y(self) -> int_nm:
         return self._StagePositionGetter('y')
 
     @StagePosition_y.setter
-    def StagePosition_y(self, value):
+    def StagePosition_y(self, value: int_nm) -> None:
         self._StagePositionSetter('y', value)
 
     @property
-    def StagePosition_z(self):
+    def StagePosition_z(self) -> int_nm:
         return self._StagePositionGetter('z')
 
     @StagePosition_z.setter
-    def StagePosition_z(self, value):
+    def StagePosition_z(self, value: int_nm) -> None:
         self._StagePositionSetter('z', value)
 
     @property
@@ -389,8 +391,9 @@ class SimuMicroscope:
         self.ImageShift2_x = x
         self.ImageShift2_y = y
 
-    def getStagePosition(self) -> Tuple[int, int, int, int, int]:
-        return self.StagePosition_x, self.StagePosition_y, self.StagePosition_z, self.StagePosition_a, self.StagePosition_b
+    def getStagePosition(self) -> StagePositionTuple:
+        return (self.StagePosition_x, self.StagePosition_y, self.StagePosition_z,
+                self.StagePosition_a, self.StagePosition_b)
 
     def isStageMoving(self) -> bool:
         self.getStagePosition()  # trigger update of self._is_moving
@@ -401,32 +404,32 @@ class SimuMicroscope:
         while self.isStageMoving():
             time.sleep(delay)
 
-    def setStageX(self, value: int, wait: bool = True):
+    def setStageX(self, value: int_nm, wait: bool = True) -> None:
         self.StagePosition_x = value
         if wait:
             self.waitForStage()
 
-    def setStageY(self, value: int, wait: bool = True):
+    def setStageY(self, value: int_nm, wait: bool = True) -> None:
         self.StagePosition_y = value
         if wait:
             self.waitForStage()
 
-    def setStageZ(self, value: int, wait: bool = True):
+    def setStageZ(self, value: int_nm, wait: bool = True) -> None:
         self.StagePosition_z = value
         if wait:
             self.waitForStage()
 
-    def setStageA(self, value: int, wait: bool = True):
+    def setStageA(self, value: float_deg, wait: bool = True) -> None:
         self.StagePosition_a = value
         if wait:
             self.waitForStage()
 
-    def setStageB(self, value: int, wait: bool = True):
+    def setStageB(self, value: float_deg, wait: bool = True) -> None:
         self.StagePosition_b = value
         if wait:
             self.waitForStage()
 
-    def setStageXY(self, x: int, y: int, wait: bool = True):
+    def setStageXY(self, x: int_nm, y: int_nm, wait: bool = True) -> None:
         self.StagePosition_x = x
         self.StagePosition_y = y
         if wait:
@@ -435,7 +438,16 @@ class SimuMicroscope:
     def stopStage(self):
         pass
 
-    def setStagePosition(self, x: int = None, y: int = None, z: int = None, a: int = None, b: int = None, speed: float = -1, wait: bool = True):
+    def setStagePosition(
+            self,
+            x: Optional[int_nm] = None,
+            y: Optional[int_nm] = None,
+            z: Optional[int_nm] = None,
+            a: Optional[float_deg] = None,
+            b: Optional[float_deg] = None,
+            wait: bool = True,
+            speed: float = -1,
+    ) -> None:
         if z is not None:
             self.setStageZ(z, wait=wait)
         if a is not None:
