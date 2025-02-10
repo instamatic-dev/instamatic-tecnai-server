@@ -13,7 +13,7 @@ from utils.config import config
 condition = threading.Condition()
 stop_program_event = threading.Event()
 
-box = []\
+box = []
 
 _conf = config()
 HOST = _conf.default_settings['tem_server_host']
