@@ -3,10 +3,13 @@ import logging
 import time
 import comtypes.client
 from math import pi
+from typing import Optional
 
+from .typing import StagePositionTuple, float_deg, int_nm
 from utils.exceptions import FEIValueError, TEMCommunicationError
 from utils.config import config
 from TEMController.tecnai_stage_thread import TecnaiStageThread
+
 
 _FUNCTION_MODES = {1: 'lowmag', 2: 'mag1', 3: 'samag', 4: 'mag2', 5: 'LAD', 6: 'diff'}
 
@@ -82,11 +85,11 @@ class TecnaiMicroscope(metaclass=Singleton):
         """Return TEM-Holder type as enum constant."""
         return self._tem.Stage.Holder
 
-    def getStagePosition(self) -> (float, float, float, float, float):
-        """Return Stageposition x, y, z in microns and alpha(a), beta(b) in degs."""
-        x = self._tem.Stage.Position.X * 1e6
-        y = self._tem.Stage.Position.Y * 1e6
-        z = self._tem.Stage.Position.Z * 1e6
+    def getStagePosition(self) -> StagePositionTuple:
+        """Return x, y, z in nanometers (used to be microns), angles in deg."""
+        x = self._tem.Stage.Position.X * 1e9
+        y = self._tem.Stage.Position.Y * 1e9
+        z = self._tem.Stage.Position.Z * 1e9
         A = self._tem.Stage.Position.A / pi * 180
         B = self._tem.Stage.Position.B / pi * 180
         return x, y, z, A, B
@@ -124,9 +127,17 @@ class TecnaiMicroscope(metaclass=Singleton):
                     
         return False
            
-    def setStagePosition(self, x: float=None, y: float=None, z: float=None, a: float=None,
-                         b: float=None, wait: bool=True, speed: float=1.0) -> None:
-        """Set the Stageposition x, y, z in microns and alpha(a), beta(b) in degs."""
+    def setStagePosition(
+            self,
+            x: Optional[int_nm] = None,
+            y: Optional[int_nm] = None,
+            z: Optional[int_nm] = None,
+            a: Optional[float_deg] = None,
+            b: Optional[float_deg] = None,
+            wait: bool = True,
+            speed: float = 1.0,
+    ) -> None:
+        """Set `Stageposition`'s x, y, z in m (from nm), alpha, beta in deg."""
         pos = self._tem.Stage.Position
         axis = 0
         enable_stage = False
@@ -142,13 +153,13 @@ class TecnaiMicroscope(metaclass=Singleton):
             enable_B = True
 
         if x is not None and enable_stage:
-            pos.X = x * 1e-6
+            pos.X = x * 1e-9
             axis = axis | self._tem_constant.StageAxes['axisX']
         if y is not None and enable_stage:
-            pos.Y = y * 1e-6
+            pos.Y = y * 1e-9
             axis = axis | self._tem_constant.StageAxes['axisY']
         if z is not None and enable_stage:
-            pos.Z = z * 1e-6
+            pos.Z = z * 1e-9
             axis = axis | self._tem_constant.StageAxes['axisZ']
         if a is not None and enable_stage:
             pos.A = a / 180 * pi
