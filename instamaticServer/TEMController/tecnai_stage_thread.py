@@ -4,8 +4,7 @@ from typing import Union
 
 class TecnaiStageThread(threading.Thread):
     """
-    Stage communication with the Tecnai microscope over a seperate thread
-    it only tilts alpha
+    Stage communication with the Tecnai microscope over a separate thread.
     """
     
     def __init__(self, tem=None, pos:(float, float, float, float, float)=None, axis:int=None, speed:Union[int, float]=0):
@@ -37,14 +36,25 @@ class TecnaiStageThread(threading.Thread):
         
     def run(self) -> None:
         #run only on the alpha-axis
+        if self._pos is None:
+            return
         with ContextManagedComtypes() as cmc:
-            if self._pos is not None and self._axis == 8:
-                stagePos = self._tem.Stage.Position
+            tem_constant = comtypes.client.Constants(self._tem)
+            stagePos = self._tem.Stage.Position
+            if self._axis & tem_constant.StageAxes['axisX']:
+                stagePos.X = self._pos[0]
+            if self._axis & tem_constant.StageAxes['axisY']:
+                stagePos.Y = self._pos[1]
+            if self._axis & tem_constant.StageAxes['axisZ']:
+                stagePos.Z = self._pos[2]
+            if self._axis & tem_constant.StageAxes['axisA']:
                 stagePos.A = self._pos[3]
-                if self._speed == 1.0:
-                    self._tem.Stage.GoTo(stagePos, self._axis)
-                else:
-                    self._tem.Stage.GoToWithSpeed(stagePos, self._axis, self._speed)
+            if self._axis & tem_constant.StageAxes['axisB']:
+                stagePos.B = self._pos[4]
+            if self._speed == 1.0:
+                self._tem.Stage.GoTo(stagePos, self._axis)
+            else:
+                self._tem.Stage.GoToWithSpeed(stagePos, self._axis, self._speed)
 
 class ContextManagedComtypes():
     '''The Context Manager Protocoll is used to initialize the COM connection again'''
