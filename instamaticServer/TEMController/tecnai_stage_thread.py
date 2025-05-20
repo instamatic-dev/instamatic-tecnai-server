@@ -35,7 +35,7 @@ class TecnaiStageThread(threading.Thread):
             self._speed = 1.0
         
     def run(self) -> None:
-        #run only on the alpha-axis
+        # Note – Tecnai's `GoToWithSpeed` can only set one axis at time
         if self._pos is None:
             return
         with ContextManagedComtypes() as cmc:
@@ -54,6 +54,8 @@ class TecnaiStageThread(threading.Thread):
             if self._speed == 1.0:
                 self._tem.Stage.GoTo(stagePos, self._axis)
             else:
+                if self._axis & (self._axis - 1) != 0:  # equivalent to axis != 2**N
+                    raise RuntimeError('`GoToWithSpeed` can set only one axis at time.')
                 self._tem.Stage.GoToWithSpeed(stagePos, self._axis, self._speed)
 
 class ContextManagedComtypes():
