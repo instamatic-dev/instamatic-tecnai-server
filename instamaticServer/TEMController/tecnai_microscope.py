@@ -135,15 +135,13 @@ class TecnaiMicroscope(metaclass=Singleton):
             a: Optional[float_deg] = None,
             b: Optional[float_deg] = None,
             wait: bool = True,
-            speed: float = 1.0,
+            speed: Optional[float] = None,
     ) -> None:
         """Set `Stageposition`'s x, y, z in m (from nm), alpha, beta in deg."""
         pos = self._tem.Stage.Position
         axis = 0
         enable_stage = False
         enable_B = False
-        if (speed > 1.0) or (speed <= 0.0):
-            speed = 1.0
 
         if self._tem.Stage.Holder in (self._tem_constant.StageHolderType['hoSingleTilt'],
                                       self._tem_constant.StageHolderType['hoDoubleTilt']):
@@ -167,25 +165,33 @@ class TecnaiMicroscope(metaclass=Singleton):
         if b is not None and enable_B:
             pos.B = b / 180 * pi
             axis = axis | self._tem_constant.StageAxes['axisB']
-        
-        if wait:
-            if axis != 0:
-                if speed == 1.0:
-                    if (axis == self._tem_constant.StageAxes['axisA']) and (self._rotation_speed != 1.0):
-                        self._tem.Stage.GoToWithSpeed(pos, axis, self._rotation_speed)
-                    else:
-                        self._tem.Stage.GoTo(pos, axis)
-                else:
-                    self._tem.Stage.GoToWithSpeed(pos, axis, speed)
-            self.waitForStage()
-        elif (wait == False) and (self._tecnaiStage.is_alive() is False):
+
+        if speed is None:
             if axis == self._tem_constant.StageAxes['axisA']:
-                #start Rotation in separate Thread and go on
+                speed = self._rotation_speed
+            else:
+                speed = 1.0
+        if (speed > 1.0) or (speed <= 0.0):
+            speed = 1.0
+
+        if speed != 1.0 and axis & (axis - 1) != 0:  # equivalent to axis != 2**N
+            raise RuntimeError('`GoToWithSpeed` can set only one axis at time.')
+
+        if wait:
+            if axis:
+                if speed != 1.0:
+                    self._tem.Stage.GoToWithSpeed(pos, axis, speed)
+                else:
+                   self._tem.Stage.GoTo(pos, axis)
+            self.waitForStage()
+        else:
+            if axis:
+                if self._tecnaiStage.is_alive():
+                    raise RuntimeError('A `TecnaiStageThread` is already running!')
                 stagePos = (pos.X, pos.Y, pos.Z, pos.A, pos.B)
                 self._tecnaiStage = TecnaiStageThread(self._tem, stagePos, axis, speed)
                 self._tecnaiStage.daemon=True
                 self._tecnaiStage.start()
-        
 
         #self._tem.Stage.GoToWithSpeed(pos, axis, 0.01) => 1grad in 4-5sec.
 
