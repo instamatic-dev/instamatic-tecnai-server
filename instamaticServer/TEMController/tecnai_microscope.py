@@ -326,9 +326,8 @@ class TecnaiMicroscope(metaclass=Singleton):
 
     def setBrightness(self, value: int) -> None:
         """set the Intensity value (0-65536)."""
-        if 0 <= value <= 65536:
-            it = float(value / 65536.0)
-            self._tem.Illumination.Intensity = it
+        it = float(value / 65536.0)
+        self._tem.Illumination.Intensity = it
 
     def getBrightnessValue(self) -> float:
         """get the Intensity value."""
